@@ -54,18 +54,18 @@ class AssetResponse(AssetBase):
 
 
 class AssetPatch(BaseModel):
-    name: Optional[str]
-    category: Optional[str]
-    brand: Optional[str]
+    name: Optional[str] = None
+    category: Optional[str] = None
+    brand: Optional[str] = None
 
-    status: Optional[Literal["Active", "Expired"]]
+    status: Optional[Literal["Active", "Expired"]] = None
 
-    purchasedate: Optional[date]
-    expirydate: Optional[date]
-    warrentyexpiry: Optional[date]
+    purchasedate: Optional[date] = None
+    expirydate: Optional[date] = None
+    warrentyexpiry: Optional[date] = None
 
-    notes: Optional[str]
+    notes: Optional[str] = None
 
     compliance_status: Optional[
         Literal["Pending Review", "Compliant", "Non-Compliant"]
-                               ]
+    ] = None

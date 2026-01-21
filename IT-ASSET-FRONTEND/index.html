@@ -46,7 +46,6 @@
           <li data-page="reports" class=".page" onclick="showPage('reports')">Reports</li>
         </ul>
 
-        <div class="settings">Settings</div>
       </aside>
 
       <main class="main">
@@ -466,6 +465,28 @@
         </form>
       </div>
     </div>
+
+    <div class="modal" id="editAssetModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditAssetModal()">×</span>
+
+    <form id="editAssetForm">
+      <input type="text" id="editAssetName" />
+      <input type="text" id="editCategory" />
+      <input type="text" id="editBrand" />
+      <select id="editStatus">
+        <option value="Active">Active</option>
+        <option value="Expired">Expired</option>
+      </select>
+      <input type="date" id="editPurchaseDate" />
+      <input type="date" id="editExpiryDate" />
+      <textarea id="editNotes"></textarea>
+
+      <button type="submit">Update</button>
+    </form>
+  </div>
+</div>
+
 
     <!-- ADD EMPLOYEE MODAL -->
     <div class="modal emp-modal" id="employeeModal">

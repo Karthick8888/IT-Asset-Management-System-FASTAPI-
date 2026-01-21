@@ -133,10 +133,9 @@ function updateAssetTableData(dataForTable) {
 
 function renderAssets(assets) {
   const container = document.getElementById("assetsRows");
-  container.innerHTML = ""; // clear old rows
+  container.innerHTML = "";
 
   assets.forEach((asset) => {
-    console.log(asset);
     const row = document.createElement("div");
     row.className = "asset-row";
 
@@ -159,12 +158,141 @@ function renderAssets(assets) {
       </div>
 
       <div>${asset.expirydate || "-"}</div>
-      <div class="dots">⋯</div>
+
+      <!-- ACTION MENU -->
+      <div class="action-cell">
+        <span class="dots" onclick="toggleMenu(this)">⋮</span>
+
+        <div class="action-menu">
+          <div onclick="editAsset(${asset.assetid})">✏️ Edit</div>
+          <div class="danger" onclick="deleteAsset(${asset.assetid})">
+            🗑 Delete
+          </div>
+        </div>
+      </div>
     `;
 
     container.appendChild(row);
   });
 }
+
+function toggleMenu(dotEl) {
+  // Close all other menus
+  document.querySelectorAll(".action-menu").forEach((menu) => {
+    menu.style.display = "none";
+  });
+
+  const menu = dotEl.nextElementSibling;
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+// Close menu when clicking outside
+window.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("dots")) {
+    document.querySelectorAll(".action-menu").forEach((menu) => {
+      menu.style.display = "none";
+    });
+  }
+});
+
+
+function editAsset(assetId) {
+  console.log("Edit asset:", assetId);
+  openEditAssetModal(assetId); // or navigate to edit page
+}
+
+let currentEditAssetId = null;
+
+async function openEditAssetModal(assetId) {
+  currentEditAssetId = assetId;
+
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/v1/assets/${assetId}`
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch asset");
+
+    const asset = await res.json();
+
+    // Prefill form
+    document.getElementById("editAssetName").value = asset.name || "";
+    document.getElementById("editCategory").value = asset.category || "";
+    document.getElementById("editBrand").value = asset.brand || "";
+    document.getElementById("editStatus").value = asset.status || "Active";
+    document.getElementById("editPurchaseDate").value =
+      asset.purchasedate || "";
+    document.getElementById("editExpiryDate").value =
+      asset.expirydate || "";
+    document.getElementById("editNotes").value = asset.notes || "";
+
+    // Open modal
+    document.getElementById("editAssetModal").style.display = "block";
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load asset data");
+  }
+}
+document
+  .getElementById("editAssetForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name: document.getElementById("editAssetName").value,
+      category: document.getElementById("editCategory").value,
+      brand: document.getElementById("editBrand").value,
+      status: document.getElementById("editStatus").value,
+      purchasedate: document.getElementById("editPurchaseDate").value,
+      expirydate: document.getElementById("editExpiryDate").value,
+      notes: document.getElementById("editNotes").value,
+    };
+
+    // Remove empty fields (PATCH safe)
+    Object.keys(payload).forEach(
+      (key) => payload[key] === "" && delete payload[key]
+    );
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/v1/assets/${currentEditAssetId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) throw new Error("Update failed");
+
+      closeEditAssetModal();
+      loadAssets(); // refresh list
+    } catch (err) {
+      console.error(err);
+      alert("Update failed");
+    }
+  });
+
+
+  function closeEditAssetModal() {
+  document.getElementById("editAssetModal").style.display = "none";
+}
+
+
+function deleteAsset(assetId) {
+  if (!confirm("Delete this asset?")) return;
+
+  fetch(`http://127.0.0.1:8000/api/v1/assets/${assetId}`, {
+    method: "DELETE",
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Delete failed");
+      loadAssets();
+    })
+    .catch(() => alert("Failed to delete asset"));
+}
+
+
 
 function getComplianceClass(status) {
   if (status === "Compliant") return "success";
