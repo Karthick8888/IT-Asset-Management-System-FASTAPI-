@@ -266,27 +266,30 @@ document
       if (!res.ok) throw new Error("Update failed");
 
       closeEditAssetModal();
+
       loadAssets(); // refresh list
+      alert("Updated Sucessfully");
     } catch (err) {
       console.error(err);
       alert("Update failed");
     }
   });
-
-
+  
+  
   function closeEditAssetModal() {
-  document.getElementById("editAssetModal").style.display = "none";
-}
-
-
-function deleteAsset(assetId) {
-  if (!confirm("Delete this asset?")) return;
-
-  fetch(`http://127.0.0.1:8000/api/v1/assets/${assetId}`, {
-    method: "DELETE",
-  })
+    document.getElementById("editAssetModal").style.display = "none";
+  }
+  
+  
+  function deleteAsset(assetId) {
+    if (!confirm("Delete this asset?")) return;
+    
+    fetch(`http://127.0.0.1:8000/api/v1/assets/${assetId}`, {
+      method: "DELETE",
+    })
     .then((res) => {
       if (!res.ok) throw new Error("Delete failed");
+      alert("Updated Sucessfully");
       loadAssets();
     })
     .catch(() => alert("Failed to delete asset"));
