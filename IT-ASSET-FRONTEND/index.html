@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>IT Asset Management - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <h2>IT Assets</h2>
+          <span>Management System</span>
+        </div>
+
+        <ul class="menu">
+          <li
+            class="active .page"
+            data-page="dashboard"
+            onclick="showPage('dashboard')"
+          >
+            Dashboard
+          </li>
+          <li data-page="assets" class="active .page" onclick="showPage('assets')">Assets</li>
+          <li
+            id="employeesClick"
+            data-page="employees"
+            class=".page"
+            onclick="showPage('employees')"
+          >
+            Employees
+          </li>
+          <li id="assignmentClick" class=".page" data-page="assignments" onclick="showPage('assignments')">
+            Assignments
+          </li>
+          <li
+            id="ExpiryTrackingClick"
+            data-page="expiry"
+            class=".page"
+            onclick="showPage('expiryTrackingPage')"
+          >
+            Expiry Tracking
+          </li>
+          <li data-page="reports" class=".page" onclick="showPage('reports')">Reports</li>
+        </ul>
+
+        <div class="settings">Settings</div>
+      </aside>
+
+      <main class="main">
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page">
+          <h1>Dashboard</h1>
+          <p class="subtitle">Overview of your IT asset inventory and status</p>
+
+          <!-- Stats Cards -->
+          <div class="cards">
+            <div class="card">
+              <p>Total Assets</p>
+              <h2 id="total_assets">0</h2>
+            </div>
+            <div class="card success">
+              <p>Active Assets</p>
+              <h2 id="active_assets">0</h2>
+            </div>
+            <div class="card warning">
+              <p>Near Expiry</p>
+              <h2 id="near_expiry">0</h2>
+            </div>
+            <div class="card danger">
+              <p>Expired</p>
+              <h2 id="expired">0</h2>
+            </div>
+          </div>
+
+          <!-- Content Grid -->
+          <div class="content">
+            <div class="box large">
+              <div class="box-header">
+                <h3>Recent Assets</h3>
+                <a href="#">View All →</a>
+              </div>
+
+              <div id="emptyAssets">
+                <p>No assets registered yet</p>
+                <button id="openModal">Add Your First Asset</button>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="assets-table">
+                  <thead>
+                    <tr>
+                      <th>ASSET ID</th>
+                      <th>NAME</th>
+                      <th>CATEGORY</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentAssets"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="box">
+              <h3>Compliance Status</h3>
+              <div class="status success">
+                <span>✔ Compliant</span>
+                <b id="compliant">0</b>
+              </div>
+              <div class="status danger">
+                <span>✖ Non-Compliant</span>
+                <b id="non_compliant">0</b>
+              </div>
+              <div class="status warning">
+                <span>⏳ Pending Review</span>
+                <b id="pending_review">0</b>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ASSETS PAGE -->
+        <div id="assets" class="page">
+          <!-- Header -->
+          <div class="assets-header">
+            <div>
+              <h1>Assets</h1>
+              <p class="subtitle">Manage your IT asset inventory</p>
+            </div>
+
+            <div class="assets-actions">
+              <button class="btn outline">⬇ Export CSV</button>
+              <button class="btn primary openModal" id="openModalInAssets">
+                ＋ Add Asset
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="assets-filters">
+            <div class="search-box">
+              🔍
+              <input id="asset-search"
+                type="text"
+                placeholder="Search by name, ID, or serial number..."
+              />
+            </div>
+
+            <select id="categ">
+              <option value="all">All Categories</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Desktop">Desktop</option>
+              <option value="Software">Software</option>
+              <option value="Server">Server</option>
+              <option value="Peripheral">Peripheral</option>
+              <option value="Network Equipment">Network Equipment</option>
+              <option value="Others">Others</option>
+            </select>
+
+            <select id="stat">
+              <option value="all">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Expired">Expired</option>
+            </select>
+          </div>
+
+          <!-- Assets List -->
+          <div class="assets-list">
+            <!-- Header -->
+            <div class="asset-row header">
+              <div>ASSET ID</div>
+              <div>NAME</div>
+              <div>CATEGORY</div>
+              <div>BRAND</div>
+              <div>STATUS</div>
+              <div>COMPLIANCE</div>
+              <div>EXPIRY DATE</div>
+              <div></div>
+            </div>
+
+            <!-- Dynamic rows go here -->
+            <div id="assetsRows"></div>
+          </div>
+        </div>
+
+        <!-- EMPLOYEES PAGE -->
+        <div id="employees" class="page emp-page">
+          <!-- Header -->
+          <div class="emp-header">
+            <div>
+              <h1>Employees</h1>
+              <p class="emp-subtitle">
+                Manage employee records for asset assignment
+              </p>
+            </div>
+
+            <button id="openEmployeeModal" class="emp-btn-primary">
+              + Add Employee
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="emp-filters">
+            <input
+              type="text"
+              id="emp-search"
+              placeholder="Search employees..."
+            />
+          </div>
+
+          <!-- Empty State -->
+          <div class="emp-box emp-empty" id="em-empty">
+            <p>No employees found</p>
+          </div>
+
+          <!-- EMPLOYEE LIST -->
+          <div class="employee-list" id="emp-list">
+            <!-- Header -->
+            <div class="employee-row header">
+              <div>EMPLOYEE ID</div>
+              <div>NAME</div>
+              <div>EMAIL</div>
+              <div>DEPARTMENT</div>
+              <div>POSITION</div>
+            </div>
+
+            <!-- Dynamic rows go here -->
+            <div id="employeeRows"></div>
+          </div>
+        </div>
+        
+
+        <!-- ASSIGNMENTS PAGE -->
+<div id="assignments" class="page">
+  <div class="page-header">
+    <div>
+      <h1>Assignments</h1>
+      <p class="subtitle">Track asset assignments and ownership history</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-outline">⬇ Export CSV</button>
+      <button class="btn-primary" id="openAssignModal">
+        + Assign Asset
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="assignment-section">
+    <div class="assignment-table-card">
+  <table class="assignment-table">
+    <thead>
+      <tr>
+        <th>Asset ID</th>
+        <th>Asset Name</th>
+        <th>Employee</th>
+        <th>Assigned Date</th>
+        <th>Returned Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="assignmentTableBody">
+      <!-- rows injected here -->
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+
+
+
+        <!-- EXPIRY TRACKING PAGE -->
+        <div id="expiryTrackingPage" class="page">
+          <div class="page-header">
+            <div>
+              <h1>Expiry Tracking</h1>
+              <p class="subtitle">Monitor warranty and license expiration</p>
+            </div>
+            <button class="btn-outline">⬇ Export Report</button>
+          </div>
+
+          <!-- EXPIRED -->
+          <div class="expiry-card expired">
+            <div class="expiry-card-header">
+              <span class="icon danger">⚠</span>
+              <h3 id="expiredCount">Expired Assets (0)</h3>
+            </div>
+
+            <div class="expiry-list" id="expiredList">
+              <p class="empty">No expired assets</p>
+            </div>
+          </div>
+
+          <!-- EXPIRING SOON -->
+          <div class="expiry-card warning">
+            <div class="expiry-card-header">
+              <span class="icon warning">⏰</span>
+              <h3 id="expiringCount">Expiring Soon - 30 Days (0)</h3>
+            </div>
+
+            <div class="expiry-list" id="expiringList">
+              <p class="empty">No assets expiring soon</p>
+            </div>
+          </div>
+        </div>
+
+      <div id="reports" class="page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h2>Reports</h2>
+    <p class="page-subtitle">
+      Generate and export asset management reports
+    </p>
+  </div>
+
+  <!-- Reports Grid -->
+  <div class="reports-grid">
+
+    <!-- Audit & Lifecycle -->
+    <div class="report-card">
+      <div class="report-icon">📄</div>
+      <h3>Audit & Lifecycle Report</h3>
+      <p>
+        Complete history of asset status changes and lifecycle events
+      </p>
+      <button class="btn-primary" onclick="exportAuditReport()">
+        ⬇ Export CSV
+      </button>
+    </div>
+
+    <!-- Ownership History -->
+    <div class="report-card">
+      <div class="report-icon">👥</div>
+      <h3>Ownership History Report</h3>
+      <p>
+        Track all asset assignments and ownership transfers
+      </p>
+      <button class="btn-primary" onclick="exportOwnershipReport()">
+        ⬇ Export CSV
+      </button>
+    </div>
+
+    <!-- Expiry & Compliance -->
+    <div class="report-card">
+      <div class="report-icon">⚠</div>
+      <h3>Expiry & Compliance Report</h3>
+      <p>
+        List of expired and near-expiry assets with compliance status
+      </p>
+      <button class="btn-primary" onclick="exportExpiryReport()">
+        ⬇ Export CSV
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+    <!-- Add Asset Modal -->
+    <div class="modal" id="assetModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Asset</h2>
+          <span class="close">&times;</span>
+        </div>
+
+        <form id="assetForm" method="post">
+          <div class="form-grid">
+            <div>
+              <label for="assetId">Asset ID *</label>
+              <input
+                id="assetId"
+                type="text"
+                placeholder="e.g. ASSET-001"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="assetName">Name *</label>
+              <input
+                id="assetName"
+                type="text"
+                placeholder="e.g. MacBook Pro 16"
+                required
+              />
+            </div>
+
+            <div>
+              <label for="category">Category *</label>
+              <select id="category" required>
+                <option>All Categories</option>
+                <option>Laptop</option>
+                <option>Desktop</option>
+                <option>Software</option>
+                <option>Server</option>
+                <option>Peripheral</option>
+                <option>Network Equipment</option>
+                <option>Others</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="brand">Brand</label>
+              <input id="brand" type="text" placeholder="e.g. Apple" />
+            </div>
+
+            <div>
+              <label for="serialNumber">Serial Number</label>
+              <input
+                id="serialNumber"
+                type="text"
+                placeholder="e.g. SN123456789"
+              />
+            </div>
+
+            <div>
+              <label for="status">Status *</label>
+              <select id="status" required>
+                <option value="">Select Status</option>
+                <option>Active</option>
+                <option>Expired</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="purchaseDate">Purchase Date</label>
+              <input id="purchaseDate" type="date" />
+            </div>
+
+            <div>
+              <label for="expiryDate">Expiry Date</label>
+              <input id="expiryDate" type="date" />
+            </div>
+
+            <div>
+              <label for="warrantyExpiry">Warranty Expiry</label>
+              <input id="warrantyExpiry" type="date" />
+            </div>
+
+            <div>
+              <label for="complianceStatus">Compliance Status *</label>
+              <select id="complianceStatus" required>
+                <option value="">Select Compliance</option>
+                <option>Pending Review</option>
+                <option>Compliant</option>
+                <option>Non-Compliant</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="notes">Notes</label>
+          <textarea
+            id="notes"
+            placeholder="Additional notes about this asset..."
+          ></textarea>
+
+          <div class="modal-actions">
+            <button type="button" class="cancel">Cancel</button>
+            <button type="submit" class="submit">Add Asset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ADD EMPLOYEE MODAL -->
+    <div class="modal emp-modal" id="employeeModal">
+      <div class="modal-content emp-modal-content">
+        <div class="modal-header">
+          <h2>Add New Employee</h2>
+          <span class="close">&times;</span>
+        </div>
+
+        <form id="employeeForm" class="emp-form">
+          <label>Employee ID *</label>
+          <input
+            id="employeeId"
+            class="emp-input"
+            type="text"
+            placeholder="e.g., EMP-001"
+            required
+          />
+
+          <label>Full Name *</label>
+          <input
+            id="fullName"
+            class="emp-input"
+            type="text"
+            placeholder="e.g., John Doe"
+            required
+          />
+
+          <label>Email</label>
+          <input
+            id="email"
+            class="emp-input"
+            type="email"
+            placeholder="e.g., john@company.com"
+          />
+
+          <label>Department</label>
+          <input
+            id="department"
+            class="emp-input"
+            type="text"
+            placeholder="e.g., Engineering"
+          />
+
+          <label>Position</label>
+          <input
+            id="position"
+            class="emp-input"
+            type="text"
+            placeholder="e.g., Software Engineer"
+          />
+
+          <div class="modal-actions emp-actions">
+            <button type="button" class="emp-btn-cancel">Cancel</button>
+
+            <button type="submit" class="emp-btn-submit">
+              Create Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ASSIGN ASSET MODAL -->
+    <div id="assignAssetModal" class="modal-overlay assign-modal">
+  <div class="modal-card assign-modal-card">
+        <div class="modal-header">
+          <h3>Assign Asset to Employee</h3>
+          <span class="close-btn" id="closeAssignModal">&times;</span>
+        </div>
+
+        <form id="assignAssetForm" >
+          <label>Asset *</label>
+          <select id="assetSelect" required>
+            <option value="">Select an asset</option>
+          </select>
+
+          <label>Employee *</label>
+          <select id="employeeSelect" required>
+            <option value="">Select an employee</option>
+          </select>
+
+          <label>Notes</label>
+          <textarea placeholder="Assignment notes..."></textarea>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-outline" id="cancelAssign">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary" id="assignsubmit">Assign Asset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
