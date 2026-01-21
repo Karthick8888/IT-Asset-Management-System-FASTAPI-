@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query,status
 from sqlalchemy.orm import Session
 from sqlalchemy import cast, String
 from typing import List, Optional
 
 from app.db.session import get_db
 from app.models.assets import Asset
-from app.schemas.assets import AssetCreate, AssetResponse, AssetUpdate
+from app.schemas.assets import AssetCreate, AssetResponse, AssetUpdate,AssetPatch
 
 router = APIRouter()
 
@@ -102,3 +102,44 @@ def get_asset(assetid: int, db: Session = Depends(get_db)):
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
     return asset
+
+
+@router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_asset(asset_id: int, db: Session = Depends(get_db)):
+    asset = db.query(Asset).filter(Asset.assetid == asset_id).first()
+
+    if not asset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Asset not found"
+        )
+
+    db.delete(asset)
+    db.commit()
+
+    return None
+
+
+@router.patch("/{asset_id}")
+def patch_asset(
+    asset_id: int,
+    asset_data: AssetPatch,
+    db: Session = Depends(get_db)
+):
+    asset = db.query(Asset).filter(Asset.assetid == asset_id).first()
+
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    update_data = asset_data.dict(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(asset, field, value)
+
+    db.commit()
+    db.refresh(asset)
+
+    return {
+        "message": "Asset updated successfully",
+        "assetid": asset.assetid
+    }

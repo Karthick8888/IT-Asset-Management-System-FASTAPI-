@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,Literal
 from datetime import date
 from enum import Enum
 
@@ -51,3 +51,21 @@ class AssetResponse(AssetBase):
 
     class Config:
         orm_mode = True
+
+
+class AssetPatch(BaseModel):
+    name: Optional[str]
+    category: Optional[str]
+    brand: Optional[str]
+
+    status: Optional[Literal["Active", "Expired"]]
+
+    purchasedate: Optional[date]
+    expirydate: Optional[date]
+    warrentyexpiry: Optional[date]
+
+    notes: Optional[str]
+
+    compliance_status: Optional[
+        Literal["Pending Review", "Compliant", "Non-Compliant"]
+                               ]
